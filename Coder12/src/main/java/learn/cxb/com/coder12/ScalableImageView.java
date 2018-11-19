@@ -52,6 +52,7 @@ public class ScalableImageView extends View {
     ObjectAnimator scaleAnimator;//缩放动画
     //    float scaleFraction;//缩放动画系数
     float currentScale;
+    boolean isInScaleProgress;
     GestureDetector mGestureDetector;
     OverScroller scroller;
     ScaleGestureDetector mScaleGestureDetector;
@@ -101,7 +102,10 @@ public class ScalableImageView extends View {
 //        Log.e("xbc", "mScaleGestureDetector.isInProgress():" + mScaleGestureDetector.isInProgress());
         boolean result = mScaleGestureDetector.onTouchEvent(event);
         if (!mScaleGestureDetector.isInProgress()) {
+            isInScaleProgress = false;
             result = mGestureDetector.onTouchEvent(event);
+        } else {
+            isInScaleProgress = true;
         }
         return result;
     }
@@ -281,6 +285,11 @@ public class ScalableImageView extends View {
         }
     }
 
+    private void fixScaleAxis(float x, float y, float scale) {
+        offsetX = (x - getWidth() / 2) - (x - getWidth() / 2) * scale / smallScale;
+        offsetY = (y - getHeight() / 2) - (y - getHeight() / 2) * scale / smallScale;
+    }
+
     class HenOnScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
 
         float initScale;
@@ -289,9 +298,7 @@ public class ScalableImageView extends View {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             currentScale = initScale * detector.getScaleFactor();
-//            fixAxis(axisX, axisY, currentScale);//FIXME 需要处理捏合中心
-            fixOffsets();
-            Log.e("xbc", "onScale:" + currentScale + ",offsetY:" + offsetY);
+//            fixScaleAxis(axisX, axisY, currentScale);//FIXME 需要处理捏合轴心
             invalidate();
             return false;
         }
@@ -301,7 +308,6 @@ public class ScalableImageView extends View {
             initScale = currentScale;
             axisX = detector.getFocusX();
             axisY = detector.getFocusY();
-            Log.e("xbc", "onScaleBegin:" + axisY);
             return true;
         }
 
