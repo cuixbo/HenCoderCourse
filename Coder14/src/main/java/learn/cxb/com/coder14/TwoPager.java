@@ -30,8 +30,9 @@ public class TwoPager extends ViewGroup {
     public TwoPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         overScroller = new OverScroller(context);
-        maxVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
-        minVelocity = ViewConfiguration.get(context).getScaledMinimumFlingVelocity();
+        viewConfiguration = ViewConfiguration.get(context);
+        maxVelocity = viewConfiguration.getScaledMaximumFlingVelocity();
+        minVelocity = viewConfiguration.getScaledMinimumFlingVelocity();
     }
 
     @Override
@@ -69,7 +70,6 @@ public class TwoPager extends ViewGroup {
                 } else if (dx < 0) {
                     dx = 0;
                 }
-//                Log.e("xbc", "dx:" + dx);
                 scrollTo((int) dx, 0);
                 break;
             case MotionEvent.ACTION_UP:// 处理回弹
@@ -95,7 +95,7 @@ public class TwoPager extends ViewGroup {
     }
 
     @Override
-    public void computeScroll() {
+    public void computeScroll() { // 该方法在onDraw()过程中会被调用 ，而 postInvalidateOnAnimation()会触发onDraw()
         if (overScroller.computeScrollOffset()) {
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
             postInvalidateOnAnimation();
